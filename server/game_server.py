@@ -9,7 +9,7 @@ Licensed under the GPL v3.0 (see LICENSE)
 This server program opens a port and handles client connections in separate
 threads. It passes the data received from a client to the game framework and
 sends the framework's reply back to the client. Parameters like IP or port
-number are defined in the config module.
+number are defined in the config file.
 
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of

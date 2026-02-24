@@ -4,8 +4,8 @@ This is a graphical tic-tac-toe client using Pygame (www.pygame.org). It is
 based on an implementation found on GitHub.
 
 The original implementation is a stand-alone program to be used by two human
-players on the same machine. It was modified to use the game server API and play
-against a remote client. Most of the game logic was removed and replaced by
+players on the same machine. It was modified to use the game server API to play
+against a remote client. Most of the game logic was removed and replaced with
 calls to API functions.
 
 Source of the original implementation:
