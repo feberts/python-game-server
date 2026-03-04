@@ -8,8 +8,7 @@ players on the same machine. It was modified to use the game server API to play
 against a remote client. Most of the game logic was removed and replaced with
 calls to API functions.
 
-Source of the original implementation:
-GitHub user 'x4nth055' (Rockikz)
+Author of the original implementation: Rockikz
 https://github.com/x4nth055/pythoncode-tutorials/tree/master/gui-programming/tictactoe-game
 Accessed: 2024-12-12
 """

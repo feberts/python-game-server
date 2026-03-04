@@ -73,4 +73,4 @@ Contributions are welcome. Feel free to create a pull request or open an issue.
 
 ## License
 
-Copyright (C) 2025-2026 Fabian Eberts, licensed under the GPL version 3 (see LICENSE).
+Copyright (C) 2025, 2026 Fabian Eberts. Licensed under the GPL version 3 (see LICENSE).

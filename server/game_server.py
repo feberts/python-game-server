@@ -1,20 +1,29 @@
 #!/usr/bin/env python3
 """
-Game server.
-
 A lightweight server and framework for turn-based multiplayer games.
 Copyright (C) 2025, 2026 Fabian Eberts
-Licensed under the GPL v3.0 (see LICENSE)
 
-This server program opens a port and handles client connections in separate
-threads. It passes the data received from a client to the game framework and
-sends the framework's reply back to the client. Parameters like IP or port
-number are defined in the config file.
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
 
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+"""
+
+"""
+Game server.
+
+This server program opens a port and handles client connections in separate
+threads. It passes the data received from a client to the game framework and
+sends the framework's reply back to the client. Parameters like IP and port
+number are defined in the config file.
 """
 
 import json
@@ -124,8 +133,9 @@ def handle_connection(conn, ip, port):
         conn.close()
         log.info('connection closed by server')
 
-# start the server:
-print('This is free software with ABSOLUTELY NO WARRANTY.')
+print("""This is free software with ABSOLUTELY NO WARRANTY.
+Licensed under the GPL version 3 (see LICENSE).""")
+
 try:
     # create listening socket:
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sd:
