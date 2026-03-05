@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 """
-Echo!
+Echo client.
 
 Not really a game, but occasionally useful for debugging and testing.
 
-An unmodified copy of the data sent to the server is sent back to the client.
+An unmodified copy of the message sent to the server is sent back to the client.
 The game ends as soon as the message 'quit' is sent. Sending 'error' causes the
-server to respond with an error message.
+server to respond with an error message, which in turn results in an exception
+being raised.
 """
 
 from game_server_api import GameServerAPI, GameServerError, IllegalMove

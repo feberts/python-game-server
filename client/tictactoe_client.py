@@ -2,9 +2,7 @@
 """
 Tic-tac-toe client.
 
-This program connects to the game server to play tic-tac-toe against another
-client. If you want to test it on a single machine, just run this program twice
-in separate shells.
+Run two clients to start a game.
 """
 
 from game_server_api import GameServerAPI, GameServerError, IllegalMove

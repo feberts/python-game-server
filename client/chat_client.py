@@ -2,7 +2,9 @@
 """
 Chat client.
 
-Run two clients to start a chat. This is a GUI client that uses Tkinter.
+Run two clients to start a chat. The number of participants can be changed
+below. This is a GUI client that uses Tkinter. This demo shows that the API
+works well with multithreading.
 """
 
 import threading
