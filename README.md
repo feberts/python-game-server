@@ -1,3 +1,4 @@
+[![](https://github.com/feberts/python-game-server/actions/workflows/lint.yml/badge.svg)](https://github.com/feberts/python-game-server/actions/workflows/lint.yml)
 ![](https://img.shields.io/badge/OS-Linux_%7C_Win_%7C_Mac-30C452?labelColor=373F46)
 ![](https://img.shields.io/badge/Python-blue?logo=python&logoColor=FFCF3E)
 ![](https://img.shields.io/badge/License-GPLv3-blue?labelColor=373F46)
