@@ -28,6 +28,8 @@ def user_input(prompt):
         except ValueError:
             print('Integers only!')
 
+print('waiting for another player to join ...')
+
 my_id = game.join()
 state = game.state()
 

@@ -58,6 +58,8 @@ def entry_handler(_):
         window.destroy()
         raise e
 
+print('waiting for another client to join ...')
+
 my_id = game.join()
 
 while True:
