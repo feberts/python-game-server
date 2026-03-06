@@ -55,6 +55,6 @@ print_board(state.board)
 if state.winner is None:
     print('No winner...')
 elif state.winner:
-    print(f'You win!')
+    print('You win!')
 else:
-    print(f'You lose...')
+    print('You lose...')

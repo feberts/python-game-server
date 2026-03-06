@@ -89,7 +89,7 @@ text_area.tag_configure('text', font=(None, 12), foreground=colour_text)
 entry = tk.Entry(
     font=(None, 12),
     insertbackground=colour_name,
-    relief="groove",
+    relief='groove',
     foreground=colour_text, background=colour_bg,
     highlightthickness=10, highlightbackground=colour_bg, highlightcolor=colour_bg,
     border=1.5)

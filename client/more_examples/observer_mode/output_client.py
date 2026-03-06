@@ -3,7 +3,7 @@
 Tic-tac-toe output client.
 
 This program joins a game session as a passive observer. It can be used in
-combination with the input client (but with a regular client, too). The input
+combination with the input client (as well as with a regular client). The input
 client joins a session as an active player and submits moves. This way, the
 implementation of input and output can be divided between two programs. Both
 programs need to pass the same value for the name parameter when joining a game
@@ -42,6 +42,6 @@ winner = state['winner']
 if winner is None:
     print('No winner...')
 elif winner == observed_id:
-    print(f'You win!')
+    print('You win!')
 else:
-    print(f'You lose...')
+    print('You lose...')

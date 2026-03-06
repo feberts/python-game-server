@@ -56,6 +56,6 @@ winner = state['winner']
 if winner is None:
     print('No winner...')
 elif winner == my_id:
-    print(f'You win!')
+    print('You win!')
 else:
-    print(f'You lose...')
+    print('You lose...')

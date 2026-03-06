@@ -86,7 +86,7 @@ class ServerLogger:
         Parameters:
         message (str): message
         """
-        time = datetime.strftime(datetime.now(), "%Y-%m-%d %X")
+        time = datetime.strftime(datetime.now(), '%Y-%m-%d %X')
         print(f'[{time} {self._ip}:{self._port}] {message}')
 
 class FrameworkLogger:
