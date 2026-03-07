@@ -30,7 +30,6 @@ copies or substantial portions of the Software.
 """
 
 import pygame
-from pygame.locals import *
 import threading
 
 from game_server_api import GameServerAPI, GameServerError, IllegalMove
