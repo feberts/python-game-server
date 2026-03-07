@@ -266,6 +266,8 @@ class GameServerAPI:
         Raises:
         GameServerError: in case the game could not be restarted
         """
+        if self._observer: raise GameServerError('cannot restart game as observer')
+
         _, err, _ = self._send({
             'type':'restart',
             'game':self._game,
