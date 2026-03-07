@@ -29,6 +29,7 @@ The above copyright notice and this permission notice shall be included in all
 copies or substantial portions of the Software.
 """
 
+import os
 import pygame
 import threading
 
@@ -63,7 +64,8 @@ class TicTacToe():
         self.FPS = pygame.time.Clock()
 
     def _load_mark(self, file_name):
-        img = pygame.image.load(file_name)
+        path = os.path.dirname(__file__) + '/'
+        img = pygame.image.load(path + file_name)
         return pygame.transform.scale(img, (self.cell_size, self.cell_size))
 
     # draws table representation
