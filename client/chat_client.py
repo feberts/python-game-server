@@ -18,7 +18,7 @@ def thread_output(text_area):
     while True:
         try:
             state = game.state()
-        except Exception as e:
+        except GameServerError as e:
             print(e)
             window.destroy()
 
@@ -54,7 +54,9 @@ def entry_handler(_):
 
     try:
         game.move(message=message)
-    except Exception as e:
+    except IllegalMove as e:
+        print(e)
+    except GameServerError as e:
         window.destroy()
         raise e
 
