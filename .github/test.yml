@@ -1,0 +1,69 @@
+name: Test
+on: [push]
+jobs:
+  test-api:
+    name: API
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+      - name: Copy files
+        run: |
+          mkdir tests
+          cp client/game_server_api.py tests/
+          cp .github/workflows/test*.py tests/
+      - name: Start server
+        run: server/game_server.py &
+      - name: Test
+        run: tests/test_api.py
+  test-game:
+    name: Game
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+      - name: Copy files
+        run: |
+          mkdir tests
+          cp client/game_server_api.py tests/
+          cp .github/workflows/test*.py tests/
+      - name: Start server
+        run: server/game_server.py &
+      - name: Test
+        run: tests/test_game.py
+  test-macos:
+    name: macOS
+    runs-on: macos-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+      - name: Copy files
+        run: |
+          mkdir tests
+          cp client/game_server_api.py tests/
+          cp .github/workflows/test*.py tests/
+      - name: Start server
+        run: server/game_server.py &
+      - name: Test game
+        run: tests/test_game.py
+      - name: Test API
+        run: tests/test_api.py
+  test-windows:
+    name: Windows
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+      - name: Copy files
+        run: |
+          mkdir tests
+          cp client/game_server_api.py tests/
+          cp .github/workflows/test*.py tests/
+      - name: Test game
+        run: |
+          pythonw server/game_server.py
+          python tests/test_game.py
+      - name: Test API
+        run: |
+          pythonw server/game_server.py
+          python tests/test_api.py

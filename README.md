@@ -1,3 +1,4 @@
+[![](https://github.com/feberts/python-game-server/actions/workflows/test.yml/badge.svg)](https://github.com/feberts/python-game-server/actions/workflows/test.yml)
 [![](https://github.com/feberts/python-game-server/actions/workflows/lint.yml/badge.svg)](https://github.com/feberts/python-game-server/actions/workflows/lint.yml)
 ![](https://img.shields.io/badge/OS-Linux_%7C_Win_%7C_Mac-30C452?labelColor=373F46)
 ![](https://img.shields.io/badge/Python-blue?logo=python&logoColor=FFCF3E)
@@ -50,7 +51,8 @@ Here is a simplified example of the API usage:
 ```py
 from game_server_api import GameServerAPI
 
-game = GameServerAPI(server='127.0.0.1', port=4711, game='TicTacToe', token='mygame', players=2)
+game = GameServerAPI(server='127.0.0.1', port=4711, game='TicTacToe',
+                     token='mygame', players=2)
 
 my_id = game.join()    # starting/joining a game - each client is assigned an ID
 game.move(position=5)  # performing a move - the function accepts keyword arguments (**kwargs)
