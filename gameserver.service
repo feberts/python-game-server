@@ -4,14 +4,14 @@ Description=Python game server
 After=network.target
 
 [Service]
-ExecStart=/usr/bin/python3 -u /home/gamer/game-server/server/game_server.py
+ExecStart=/usr/bin/python3 -u /home/gameserver/python-game-server/server/game_server.py
 Restart=always
 
-StandardOutput=append:/home/gamer/gameserver.log
+StandardOutput=append:/var/log/gameserver.log
 StandardError=inherit
 
-User=gamer
-Group=gamer
+User=gameserver
+Group=gameserver
 
 ProtectSystem=strict
 ProtectHome=tmpfs
@@ -32,7 +32,7 @@ CapabilityBoundingSet=
 NoNewPrivileges=yes
 MemoryDenyWriteExecute=true
 
-BindReadOnlyPaths=/home/gamer/game-server/server
+BindReadOnlyPaths=/home/gameserver/python-game-server/server
 
 [Install]
 WantedBy=multi-user.target
