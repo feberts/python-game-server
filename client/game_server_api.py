@@ -51,9 +51,12 @@ class GameServerAPI:
         Parameters needed in order to connect to the server and to start or join
         a game session are passed to this constructor. Parameter game specifies
         the game to be started. It corresponds to the name of the game class on
-        the server. To be able to join the game session, all participants need
-        to agree on a token and pass it to the constructor. The token is used to
-        identify the game session. It can be any string.
+        the server. To be able to join a specific game session, all participants
+        need to agree on a token and pass it to the constructor. The token is
+        used to identify the game session. It can be any string. Alternatively,
+        you can have the server automatically assign you to a session by passing
+        the string 'auto' as the token. Refer to function join for more
+        information.
 
         The optional parameter players is required by function join in order to
         start a new game session with the specified number of players. If the
@@ -70,7 +73,7 @@ class GameServerAPI:
         server (str): server
         port (int): port number
         game (str): name of the game
-        token (str): name of the game session
+        token (str): name of the game session, 'auto' for automatic assignment
         players (int): total number of players (optional)
         name (str): player name (optional)
 
@@ -81,7 +84,7 @@ class GameServerAPI:
         assert type(port) == int and 0 <= port <= 65535, self._error('port')
         assert type(game) == str and len(game) > 0, self._error('game')
         assert type(token) == str and len(token) > 0, self._error('token')
-        assert players == None or type(players) == int and players > 0, self._error('players')
+        assert players is None or type(players) == int and players > 0, self._error('players')
         assert type(name) == str, self._error('name')
 
         # server:
@@ -110,8 +113,20 @@ class GameServerAPI:
         players must be passed to the constructor. If the argument is omitted,
         this function will only try to join an existing session but never start
         a new one. The argument is ignored when an existing session can be
-        joined. If a session exists but is already fully occupied by players,
-        it is terminated and a new session is started.
+        joined.
+
+        There are two ways to start or join a game session:
+
+        - By providing a shared token to the constructor. All clients using the
+          same token will join this specific game session. If such a session
+          exists but is already fully occupied by players, it is terminated and
+          a new session is started.
+        - By passing the string 'auto' as the token. This causes the server to
+          automatically assign you to an open session. If no session exists that
+          can be joined, a new one is started. Existing sessions are never
+          terminated. This method of starting and joining sessions does not
+          interfere with the above method. To achieve this, the server creates
+          unique tokens internally.
 
         The game starts as soon as the required number of clients has joined the
         game. The function then returns the player ID. The server assigns IDs in
@@ -134,6 +149,7 @@ class GameServerAPI:
 
         self._player_id = response['player_id']
         self._key = response['key']
+        self._token = response['token']
         self._request_size_max = response['request_size_max']
 
         return self._player_id
@@ -230,7 +246,8 @@ class GameServerAPI:
         This function will return the player ID of the observed player.
 
         This function can only be called, after the specified game session has
-        already been started.
+        already been started. The observer mode is not available for auto-join
+        sessions.
 
         Returns:
         int: ID of the observed player
@@ -240,6 +257,9 @@ class GameServerAPI:
         """
         if type(self._name) != str or len(self._name) == 0:
             raise GameServerError('a valid name must be passed to the constructor')
+
+        if self._token == 'auto':
+            raise GameServerError('observer mode not available for auto-join sessions')
 
         response, err, _ = self._send({
             'type':'observe',

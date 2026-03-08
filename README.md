@@ -17,6 +17,8 @@ A lightweight server and framework for turn-based multiplayer games.
 - a framework that allows new games to be added easily
 - a uniform yet flexible API for all games
 - multiple parallel game sessions
+  - you can join a specific session
+  - or auto-join the next non-full session
 - an observer mode to watch another client play
 
 ### Designed for
@@ -51,11 +53,11 @@ Here is a simplified example of the API usage:
 ```py
 from game_server_api import GameServerAPI
 
-game = GameServerAPI(server='127.0.0.1', port=4711, game='TicTacToe',
-                     token='mygame', players=2)
+game = GameServerAPI(server='127.0.0.1', port=4711, game='TicTacToe', players=2,
+                     token='mygame') # pass 'auto' to auto-join a session
 
-my_id = game.join()    # starting/joining a game - each client is assigned an ID
-game.move(position=5)  # performing a move - the function accepts keyword arguments (**kwargs)
+my_id = game.join()    # start/join a session - each client is assigned an ID
+game.move(position=5)  # perform a move - the function accepts keyword arguments (**kwargs)
 state = game.state()   # returns a dictionary representing the game state,
                        # including the ID of the current player(s)
 ```

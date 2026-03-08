@@ -45,6 +45,10 @@ class GameFramework:
         self._build_game_class_dict()
         self._start_clean_up()
         self._player_joins = threading.Event()
+        self._auto_join_tokens = {} # game name -> auto-join token
+        self._next_auto_join_token = 0
+        self._AUTO = 'auto'
+        self._lock = threading.Lock()
 
     def _build_game_class_dict(self):
         """
@@ -87,7 +91,9 @@ class GameFramework:
         join. If this is the case, the request is passed to the function for
         joining a session. In all other cases, the function for starting a new
         game session is called. This implies that an already running session
-        will be terminated.
+        will be terminated. When a client makes use of the auto-join
+        functionality, a unique token is generated. In this case, sessions are
+        never terminated. A new session is created instead.
 
         Parameters:
         request (dict): request containing game name and token
@@ -108,14 +114,23 @@ class GameFramework:
         if game_name not in self._game_classes:
             return utility.framework_error('no such game')
 
+        if token.startswith(self._AUTO) and len(token) > len(self._AUTO):
+            return utility.framework_error("token must not start with reserved prefix 'auto'")
+
+        # generate token for auto-joining clients:
+        if token == self._AUTO:
+            token = self._generate_auto_join_token(game_name, players)
+            name = '' # no observer mode for auto-join sessions
+
         # retrieve game session, if it exists:
         session, _ = self._retrieve_session(game_name, token)
 
         # start or join a session:
         if session and not session.full():
-            return self._join_session(session, name)
+            return self._join_session(session, name, token)
         elif not session and not players:
-            return utility.framework_error('no such game session')
+            return utility.framework_error(
+                'no such game session; provide the number of players to start one')
         elif session and session.full() and not players:
             return utility.framework_error('game session already full')
         else:
@@ -169,10 +184,11 @@ class GameFramework:
 
         # wait for others to join:
         self._await_game_start(session)
+        self._remove_auto_join_token(game_name, token)
 
         if not session.full(): # timeout reached
             if (game_name, token) in self._game_sessions:
-                del self._game_sessions[(game_name, token)] # remove game session
+                del self._game_sessions[(game_name, token)]
             return utility.framework_error('timeout while waiting for others to join')
 
         log.info(f'Starting session {game_name}:{token}')
@@ -180,9 +196,10 @@ class GameFramework:
         return self._return_data({
             'player_id':player_id,
             'key':key,
+            'token':token,
             'request_size_max':config.request_size_max})
 
-    def _join_session(self, session, name):
+    def _join_session(self, session, name, token):
         """
         Joining a game session.
 
@@ -199,6 +216,7 @@ class GameFramework:
         Parameters:
         session (GameSession): game session
         name (str): player name, can be an empty string
+        token (str): name of the game session
 
         Returns:
         dict: containing the player's ID and key
@@ -217,6 +235,7 @@ class GameFramework:
         return self._return_data({
             'player_id':player_id,
             'key':key,
+            'token':token,
             'request_size_max':config.request_size_max})
 
     def _move(self, request):
@@ -322,7 +341,8 @@ class GameFramework:
         needs to know the ID of that player. This function retrieves that ID
         based on the player's name. This only works, if the player has supplied
         a name when joining the game session. The observed player's key is sent
-        to the client as well.
+        to the client as well. The observer mode is not available for auto-join
+        sessions.
 
         Parameters:
         request (dict): request containing game name, token and player to be observed
@@ -337,6 +357,9 @@ class GameFramework:
         game_name = request['game']
         token = request['token']
         player_name = request['name']
+
+        if token == self._AUTO:
+            return utility.framework_error('observer mode not available for auto-join sessions')
 
         # retrieve game session:
         session, err = self._retrieve_session(game_name, token)
@@ -428,6 +451,40 @@ class GameFramework:
             return None, utility.framework_error('no such game session')
 
         return self._game_sessions[(game_name, token)], None
+
+    def _generate_auto_join_token(self, game_name, players):
+        """
+        Generate a unique token for an auto-join session.
+
+        Parameters:
+        game_name (str): name of the game
+        players (int): total number of players
+
+        Returns:
+        str: a unique token for an auto-join session, None in case of an error
+        """
+        with self._lock:
+            if game_name not in self._auto_join_tokens:
+                if not players: return None
+                token = f'{self._AUTO}-{self._next_auto_join_token}'
+                self._next_auto_join_token += 1
+                self._auto_join_tokens[game_name] = token
+            else:
+                token = self._auto_join_tokens[game_name]
+
+            return token
+
+    def _remove_auto_join_token(self, game_name, token):
+        """
+        This function is used to remove a token from the auto-join dictionary
+        after the session has been started.
+
+        Parameters:
+        game_name (str): name of the game
+        token (str): name of the game session
+        """
+        if token.startswith(self._AUTO):
+            del self._auto_join_tokens[game_name]
 
     def _return_data(self, data):
         """
