@@ -5,6 +5,8 @@ Testing all API functions.
 
 from game_server_api import GameServerAPI, GameServerError, IllegalMove
 
+import threading
+
 SERVER = '127.0.0.1'
 PORT = 4711
 
@@ -154,5 +156,46 @@ try:
     fail('observer: no exception despite restart')
 except GameServerError:
     pass
+
+# ========== auto-join ==========
+
+GAME = 'Chat'
+player1 = None
+
+def join_game():
+    global player1
+    player1 = GameServerAPI(SERVER, PORT, GAME, 'auto', 2)
+    player1.join()
+
+t = threading.Thread(target=join_game, daemon=True)
+t.start()
+player2 = GameServerAPI(SERVER, PORT, GAME, players=2)
+player2.join()
+t.join()
+player1.move(name='player1')
+player2.move(name='player2')
+
+player1.move(message='Hello player2')
+state = player2.state()
+name, msg = state['messages'][0]
+if name != 'player1' or msg != 'Hello player2':
+    fail('wrong state in auto-join session')
+
+try:
+    other = GameServerAPI(SERVER, PORT, GAME)
+    other.join()
+    fail('auto-join: no exception despite missing number of players')
+except GameServerError:
+    pass
+
+other = GameServerAPI(SERVER, PORT, GAME, players=1)
+other.join()
+other.move(name='other')
+other.move(message='other message')
+
+state = player1.state()
+name, msg = state['messages'][-1]
+if name != 'player1' or msg != 'Hello player2':
+    fail('interfering auto-join sessions')
 
 print('OK')
