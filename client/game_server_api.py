@@ -46,16 +46,16 @@ class GameServerAPI:
     This class provides API functions to communicate with the game server.
     """
 
-    def __init__(self, server, port, game, token, players=None, name=''):
+    def __init__(self, server, port, game, token='auto', players=None, name=''):
         """
         Parameters needed in order to connect to the server and to start or join
         a game session are passed to this constructor. Parameter game specifies
         the game to be started. It corresponds to the name of the game class on
         the server. To be able to join a specific game session, all participants
         need to agree on a token and pass it to the constructor. The token is
-        used to identify the game session. It can be any string. Alternatively,
-        you can have the server automatically assign you to a session by passing
-        the string 'auto' as the token. Refer to function join for more
+        used to identify the game session. Alternatively, you can have the
+        server automatically assign you to a session by passing 'auto' as the
+        token (this is the default). Refer to function join for more
         information.
 
         The optional parameter players is required by function join in order to
@@ -73,7 +73,7 @@ class GameServerAPI:
         server (str): server
         port (int): port number
         game (str): name of the game
-        token (str): name of the game session, 'auto' for automatic assignment
+        token (str): name of the session (optional), 'auto' for auto-join (default)
         players (int): total number of players (optional)
         name (str): player name (optional)
 

@@ -48,13 +48,13 @@ Module `game_server_api` provides an API for communicating with the server. It a
 - passively observe another player
 - start a new game within the current session
 
-Here is a simplified example of the API usage:
+Here is a short demo of the API usage:
 
 ```py
 from game_server_api import GameServerAPI
 
 game = GameServerAPI(server='127.0.0.1', port=4711, game='TicTacToe', players=2,
-                     token='mygame') # pass 'auto' to auto-join a session
+                     token='mygame') # pass 'auto' to auto-join a session (default)
 
 my_id = game.join()    # start/join a session - each client is assigned an ID
 game.move(position=5)  # perform a move - the function accepts keyword arguments (**kwargs)
