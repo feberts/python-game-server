@@ -97,6 +97,7 @@ entry = tk.Entry(
     border=1.5)
 
 entry.bind('<Return>', func=entry_handler)
+entry.bind('<KP_Enter>', func=entry_handler)
 window.bind('<Escape>', func=lambda _: window.destroy())
 
 text_area.pack(expand=True)
