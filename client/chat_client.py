@@ -12,7 +12,7 @@ import tkinter as tk
 
 from game_server_api import GameServerAPI, GameServerError, IllegalMove
 
-game = GameServerAPI(server='127.0.0.1', port=4711, game='Chat', token='mychat', players=2)
+game = GameServerAPI(server='127.0.0.1', port=4711, game='Chat', session='mychat', players=2)
 
 def thread_output(text_area):
     while True:

@@ -46,16 +46,16 @@ class GameServerAPI:
     This class provides API functions to communicate with the game server.
     """
 
-    def __init__(self, server, port, game, token='auto', players=None, name=''):
+    def __init__(self, server, port, game, session='auto', players=None, name=''):
         """
         Parameters needed in order to connect to the server and to start or join
         a game session are passed to this constructor. Parameter game specifies
         the game to be started. It corresponds to the name of the game class on
         the server. To be able to join a specific game session, all participants
-        need to agree on a token and pass it to the constructor. The token is
-        used to identify the game session. Alternatively, you can have the
-        server automatically assign you to a session by passing 'auto' as the
-        token (this is the default). Refer to function join for more
+        need to agree on a session token and pass it to the constructor. The
+        token is used to identify the game session. Alternatively, you can have
+        the server automatically assign you to a session by passing 'auto' as
+        the token (this is the default). Refer to function join for more
         information.
 
         The optional parameter players is required by function join in order to
@@ -73,7 +73,7 @@ class GameServerAPI:
         server (str): server
         port (int): port number
         game (str): name of the game
-        token (str): name of the session (optional), 'auto' for auto-join (default)
+        session (str): name of the game session (optional), 'auto' for auto-join (default)
         players (int): total number of players (optional)
         name (str): player name (optional)
 
@@ -83,7 +83,7 @@ class GameServerAPI:
         assert type(server) == str and len(server) > 0, self._error('server')
         assert type(port) == int and 0 <= port <= 65535, self._error('port')
         assert type(game) == str and len(game) > 0, self._error('game')
-        assert type(token) == str and len(token) > 0, self._error('token')
+        assert type(session) == str and len(session) > 0, self._error('session')
         assert players is None or type(players) == int and players > 0, self._error('players')
         assert type(name) == str, self._error('name')
 
@@ -93,7 +93,7 @@ class GameServerAPI:
 
         # game session:
         self._game = game
-        self._token = token
+        self._session = session
         self._players = players
         self._name = name
         self._player_id = None
@@ -117,16 +117,16 @@ class GameServerAPI:
 
         There are two ways to start or join a game session:
 
-        - By providing a shared token to the constructor. All clients using the
-          same token will join this specific game session. If such a session
-          exists but is already fully occupied by players, it is terminated and
-          a new session is started.
-        - By passing the string 'auto' as the token. This causes the server to
-          automatically assign you to an open session. If no session exists that
-          can be joined, a new one is started. Existing sessions are never
-          terminated. This method of starting and joining sessions does not
-          interfere with the above method. To achieve this, the server creates
-          unique tokens internally.
+        - By providing a shared session token to the constructor. All clients
+          using the same token will join this specific game session. If such a
+          session exists but is already fully occupied by players, it is
+          terminated and a new session is started.
+        - By passing the string 'auto' as the session token. This causes the
+          server to automatically assign you to an open session. If no session
+          exists that can be joined, a new one is started. Existing sessions are
+          never terminated. This method of starting and joining sessions does
+          not interfere with the above method. To achieve this, the server
+          creates unique tokens internally.
 
         The game starts as soon as the required number of clients has joined the
         game. The function then returns the player ID. The server assigns IDs in
@@ -141,7 +141,7 @@ class GameServerAPI:
         response, err, _ = self._send({
             'type':'join',
             'game':self._game,
-            'token':self._token,
+            'session':self._session,
             'players':self._players,
             'name':self._name})
 
@@ -149,7 +149,7 @@ class GameServerAPI:
 
         self._player_id = response['player_id']
         self._key = response['key']
-        self._token = response['token']
+        self._session = response['session']
         self._request_size_max = response['request_size_max']
 
         return self._player_id
@@ -180,7 +180,7 @@ class GameServerAPI:
         _, err, status = self._send({
             'type':'move',
             'game':self._game,
-            'token':self._token,
+            'session':self._session,
             'player_id':self._player_id,
             'key':self._key,
             'move':kwargs})
@@ -204,17 +204,20 @@ class GameServerAPI:
 
         Independent of the game, the dictionary always contains these two keys:
 
-        'current': a list of player IDs, indicating whose player's turn it is
-        'gameover': a boolean value indicating whether the game is over or still active
+        - 'current': a list of player IDs, indicating whose player's turn it is
+        - 'gameover': a boolean value indicating whether the game is over or
+          still active
 
         This function will block until the game state changes. Only then does
         the server respond with the updated state. This is more efficient than
         polling. To avoid deadlocks, the function never blocks in these
         situations:
 
-        - when the game has just started to allow clients to get the initial state
+        - when the game has just started to allow clients to get the initial
+          state
         - after a move was performed to allow clients to get the new state
-        - when the game was restarted and a client still has to get the old game's state
+        - when the game was restarted and a client still has to get the old
+          game's state
 
         Returns:
         dict: game state
@@ -227,7 +230,7 @@ class GameServerAPI:
         state, err, _ = self._send({
             'type':'state',
             'game':self._game,
-            'token':self._token,
+            'session':self._session,
             'player_id':self._player_id,
             'key':self._key,
             'observer':self._observer})
@@ -258,13 +261,13 @@ class GameServerAPI:
         if type(self._name) != str or len(self._name) == 0:
             raise GameServerError('a valid name must be passed to the constructor')
 
-        if self._token == 'auto':
+        if self._session == 'auto':
             raise GameServerError('observer mode not available for auto-join sessions')
 
         response, err, _ = self._send({
             'type':'observe',
             'game':self._game,
-            'token':self._token,
+            'session':self._session,
             'name':self._name})
 
         if err: raise GameServerError(err)
@@ -291,7 +294,7 @@ class GameServerAPI:
         _, err, _ = self._send({
             'type':'restart',
             'game':self._game,
-            'token':self._token,
+            'session':self._session,
             'player_id':self._player_id,
             'key':self._key})
 

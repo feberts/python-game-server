@@ -9,7 +9,7 @@ generic and works with every game, but it can simplify the API usage.
 
 from yahtzee_api import YahtzeeAPI, GameServerError, IllegalMove
 
-game = YahtzeeAPI(token='mygame', players=1)
+game = YahtzeeAPI(session='mygame', players=1)
 
 def print_scorecard(scorecard):
     print('\n' * 100)

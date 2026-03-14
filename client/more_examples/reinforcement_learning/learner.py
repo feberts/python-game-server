@@ -10,7 +10,7 @@ the performance develops over time.
 from game_server_api import GameServerAPI
 from menace import MENACE
 
-game = GameServerAPI(server='127.0.0.1', port=4711, game='TicTacToe', token='training', players=2)
+game = GameServerAPI(server='127.0.0.1', port=4711, game='TicTacToe', session='training', players=2)
 
 batch_size = 1000 # learning progress will be printed after each batch of games
 number_of_batches = 100

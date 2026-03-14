@@ -9,7 +9,7 @@ generic and works with every game, but it can simplify the API usage.
 
 from tictactoe_api import TicTacToeAPI, GameServerError, IllegalMove
 
-game = TicTacToeAPI(token='mygame')
+game = TicTacToeAPI(session='mygame')
 
 symbols = ('x', 'o')
 

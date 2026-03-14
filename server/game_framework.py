@@ -103,11 +103,11 @@ class GameFramework:
         """
         # check and parse request:
         err = utility.check_dict(request, {
-            'game':str, 'token':str, 'players':(int, type(None)), 'name':str})
+            'game':str, 'session':str, 'players':(int, type(None)), 'name':str})
         if err: return utility.framework_error(err)
 
         game_name = request['game']
-        token = request['token']
+        token = request['session']
         players = request['players']
         name = request['name']
 
@@ -196,7 +196,7 @@ class GameFramework:
         return self._return_data({
             'player_id':player_id,
             'key':key,
-            'token':token,
+            'session':token,
             'request_size_max':config.request_size_max})
 
     def _join_session(self, session, name, token):
@@ -235,7 +235,7 @@ class GameFramework:
         return self._return_data({
             'player_id':player_id,
             'key':key,
-            'token':token,
+            'session':token,
             'request_size_max':config.request_size_max})
 
     def _move(self, request):
@@ -255,11 +255,11 @@ class GameFramework:
         """
         # check and parse request:
         err = utility.check_dict(request, {
-            'game':str, 'token':str, 'player_id':int, 'key':str, 'move':dict})
+            'game':str, 'session':str, 'player_id':int, 'key':str, 'move':dict})
         if err: return utility.framework_error(err)
 
         game_name = request['game']
-        token = request['token']
+        token = request['session']
         player_id = request['player_id']
         key = request['key']
         move = request['move']
@@ -302,11 +302,11 @@ class GameFramework:
         """
         # check and parse request:
         err = utility.check_dict(request, {
-            'game':str, 'token':str, 'player_id':int, 'key':str, 'observer':bool})
+            'game':str, 'session':str, 'player_id':int, 'key':str, 'observer':bool})
         if err: return utility.framework_error(err)
 
         game_name = request['game']
-        token = request['token']
+        token = request['session']
         player_id = request['player_id']
         key = request['key']
         observer = request['observer']
@@ -351,11 +351,11 @@ class GameFramework:
         dict: containing the ID of the observed player
         """
         # check and parse request:
-        err = utility.check_dict(request, {'game':str, 'token':str, 'name':str})
+        err = utility.check_dict(request, {'game':str, 'session':str, 'name':str})
         if err: return utility.framework_error(err)
 
         game_name = request['game']
-        token = request['token']
+        token = request['session']
         player_name = request['name']
 
         if token == self._AUTO:
@@ -391,11 +391,11 @@ class GameFramework:
         """
         # check and parse request:
         err = utility.check_dict(request, {
-            'game':str, 'token':str, 'player_id':int, 'key':str})
+            'game':str, 'session':str, 'player_id':int, 'key':str})
         if err: return utility.framework_error(err)
 
         game_name = request['game']
-        token = request['token']
+        token = request['session']
         player_id = request['player_id']
         key = request['key']
 

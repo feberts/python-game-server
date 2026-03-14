@@ -8,7 +8,7 @@ other clients.
 
 from game_server_api import GameServerAPI, GameServerError, IllegalMove
 
-game = GameServerAPI(server='127.0.0.1', port=4711, game='Yahtzee', token='mygame', players=1)
+game = GameServerAPI(server='127.0.0.1', port=4711, game='Yahtzee', session='mygame', players=1)
 
 def print_scorecard(scorecard):
     print('\n' * 100)

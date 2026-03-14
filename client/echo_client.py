@@ -12,7 +12,7 @@ being raised.
 
 from game_server_api import GameServerAPI, GameServerError, IllegalMove
 
-game = GameServerAPI(server='127.0.0.1', port=4711, game='Echo', token='mygame', players=1)
+game = GameServerAPI(server='127.0.0.1', port=4711, game='Echo', session='mygame', players=1)
 
 my_id = game.join()
 state = game.state()

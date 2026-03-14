@@ -15,8 +15,8 @@ class TicTacToeAPI:
     This class provides API wrapper functions for tic-tac-toe.
     """
 
-    def __init__(self, token, name=''):
-        self._api = GameServerAPI('127.0.0.1', 4711, 'TicTacToe', token, 2, name)
+    def __init__(self, session, name=''):
+        self._api = GameServerAPI('127.0.0.1', 4711, 'TicTacToe', session, 2, name)
         self.my_id = None
 
     def join(self):

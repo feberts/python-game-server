@@ -10,7 +10,7 @@ import random
 
 from game_server_api import GameServerAPI
 
-game = GameServerAPI(server='127.0.0.1', port=4711, game='TicTacToe', token='training')
+game = GameServerAPI(server='127.0.0.1', port=4711, game='TicTacToe', session='training')
 
 def random_move(board):
     vacant = [i for i in range(9) if board[i] == -1]

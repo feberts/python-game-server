@@ -35,7 +35,7 @@ import threading
 
 from game_server_api import GameServerAPI, GameServerError, IllegalMove
 
-game = GameServerAPI(server='127.0.0.1', port=4711, game='TicTacToe', token='mygame', players=2)
+game = GameServerAPI(server='127.0.0.1', port=4711, game='TicTacToe', session='mygame', players=2)
 
 pygame.init()
 pygame.font.init()

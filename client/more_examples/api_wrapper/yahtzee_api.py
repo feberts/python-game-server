@@ -15,8 +15,8 @@ class YahtzeeAPI:
     This class provides API wrapper functions for Yahtzee.
     """
 
-    def __init__(self, token, players, name=''):
-        self._api = GameServerAPI('127.0.0.1', 4711, 'Yahtzee', token, players, name)
+    def __init__(self, session, players, name=''):
+        self._api = GameServerAPI('127.0.0.1', 4711, 'Yahtzee', session, players, name)
         self.my_id = None
 
     def join(self):

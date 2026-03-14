@@ -12,7 +12,7 @@ session.
 
 from game_server_api import GameServerAPI, GameServerError, IllegalMove
 
-game = GameServerAPI(server='127.0.0.1', port=4711, game='TicTacToe', token='mygame', name='bob')
+game = GameServerAPI(server='127.0.0.1', port=4711, game='TicTacToe', session='mygame', name='bob')
 
 symbols = ('x', 'o')
 

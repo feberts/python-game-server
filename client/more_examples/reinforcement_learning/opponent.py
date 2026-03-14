@@ -9,7 +9,7 @@ uses the same learning method.
 from game_server_api import GameServerAPI
 from menace import MENACE
 
-game = GameServerAPI(server='127.0.0.1', port=4711, game='TicTacToe', token='training')
+game = GameServerAPI(server='127.0.0.1', port=4711, game='TicTacToe', session='training')
 
 my_id = game.join()
 

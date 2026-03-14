@@ -16,38 +16,38 @@ def fail(msg):
 # ========== join ==========
 
 GAME = 'Echo'
-TOKEN = 'test'
+SESSION = 'test'
 NAME = 'bob'
 
 try:
-    game_err = GameServerAPI(SERVER, PORT, 'InvalidGame', TOKEN, 1)
+    game_err = GameServerAPI(SERVER, PORT, 'InvalidGame', SESSION, 1)
     my_id = game_err.join()
     fail('no exception when trying to start non-existent game')
 except GameServerError:
     pass
 
 try:
-    game_err = GameServerAPI(SERVER, 9999, GAME, TOKEN, 1)
+    game_err = GameServerAPI(SERVER, 9999, GAME, SESSION, 1)
     my_id = game_err.join()
     fail('no exception despite invalid port')
 except GameServerError:
     pass
 
 try:
-    game_err = GameServerAPI('127.0.0.13', PORT, GAME, TOKEN, 1)
+    game_err = GameServerAPI('127.0.0.13', PORT, GAME, SESSION, 1)
     my_id = game_err.join()
     fail('no exception despite invalid ip')
 except GameServerError:
     pass
 
 try:
-    game_err = GameServerAPI(SERVER, PORT, GAME, TOKEN)
+    game_err = GameServerAPI(SERVER, PORT, GAME, SESSION)
     my_id = game_err.join()
     fail('no exception when trying to join non-existent session')
 except GameServerError:
     pass
 
-game = GameServerAPI(SERVER, PORT, GAME, TOKEN, 1, NAME)
+game = GameServerAPI(SERVER, PORT, GAME, SESSION, 1, NAME)
 
 try:
     game.move(msg='invalid')
@@ -58,7 +58,7 @@ except GameServerError:
 my_id = game.join()
 
 try:
-    game_err = GameServerAPI(SERVER, PORT, GAME, TOKEN)
+    game_err = GameServerAPI(SERVER, PORT, GAME, SESSION)
     my_id = game_err.join()
     fail('no exception when trying to join full session')
 except GameServerError:
@@ -119,13 +119,13 @@ if state['gameover']:
 # ========== observe ==========
 
 try:
-    observer = GameServerAPI(SERVER, PORT, GAME, TOKEN, name='invalid')
+    observer = GameServerAPI(SERVER, PORT, GAME, SESSION, name='invalid')
     observer.observe()
     fail('observer: no exception despite invalid name')
 except GameServerError:
     pass
 
-observer = GameServerAPI(SERVER, PORT, GAME, TOKEN, name=NAME)
+observer = GameServerAPI(SERVER, PORT, GAME, SESSION, name=NAME)
 observer.observe()
 
 game.move(msg='hello observer')
