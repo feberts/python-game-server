@@ -67,3 +67,26 @@ jobs:
         run: |
           pythonw server/game_server.py
           python tests/test_api.py
+  test-tls:
+    name: TLS
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+      - name: Copy files
+        run: |
+          mkdir tests
+          cp client/game_server_api.py tests/
+          cp .github/workflows/test*.py tests/
+      - name: Create certificate and key
+        run: |
+          openssl req -x509 -newkey ed25519 -keyout server/key.pem \
+            -out server/cert.pem -sha256 -days 3650 -noenc -subj '/CN=localhost'
+          cp server/cert.pem tests/
+          echo "ip = 'localhost'" >> server/config.py
+          echo "tls_cert = 'cert.pem'" >> server/config.py
+          echo "tls_key = 'key.pem'" >> server/config.py
+      - name: Start server
+        run: server/game_server.py &
+      - name: Test
+        run: tests/test_tls.py
