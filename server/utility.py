@@ -1,11 +1,11 @@
 """
 Utility.
 
-This module provides various utility functions and classes for logging and error
-handling.
+This module provides various utility functions and classes.
 """
 
 from datetime import datetime
+import os
 
 import config
 
@@ -56,14 +56,13 @@ class ServerLogger:
     The output contains a timestamp, the client's IP and port, and the log
     message itself. The log level can be set in the config file.
     """
-    def __init__(self, ip, port):
+    def __init__(self, ip=None, port=None):
         """
         Parameters:
         ip (str): client IP
         port (int): client port
         """
-        self._ip = ip
-        self._port = port
+        self._client = f' {ip}:{port}' if ip else ''
 
     def info(self, message):
         """
@@ -87,7 +86,7 @@ class ServerLogger:
         message (str): message
         """
         time = datetime.strftime(datetime.now(), '%Y-%m-%d %X')
-        print(f'[{time} {self._ip}:{self._port}] {message}')
+        print(f'[{time}{self._client}] {message}')
 
 class FrameworkLogger:
     """
@@ -157,3 +156,23 @@ def check_dict(d, expected):
             return f"value of key '{key_name}' must be of type {val_type}"
 
     return None
+
+def abs_path(file_name):
+    """
+    Always returns the file name with its absolute path, regardless of where the
+    file is located or from where the program was called.
+
+    Parameters:
+    file_name (str): file name with relative or absolute path
+
+    Returns:
+    str: file name with absolute path
+
+    Raises:
+    TypeError: if argument is not of type str
+    IsADirectoryError: if argument is a directory
+    """
+    if os.path.isabs(file_name):
+        return file_name
+
+    return os.path.join(os.path.abspath(os.path.dirname(__file__)), file_name)

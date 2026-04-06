@@ -28,6 +28,7 @@ number are defined in the config file.
 
 import json
 import socket
+import ssl
 import threading
 import traceback
 
@@ -40,7 +41,7 @@ framework = game_framework.GameFramework()
 class ClientDisconnect(Exception): pass
 class RequestSizeExceeded(Exception): pass
 
-def handle_connection(conn, ip, port):
+def handle_connection(conn, client):
     """
     Handling a connection.
 
@@ -57,10 +58,10 @@ def handle_connection(conn, ip, port):
     possible, error messages are sent back to the client.
 
     Parameters:
-    conn (socket): connection socket
-    ip (str): client IP
-    port (int): client port
+    conn (socket or SSLSocket): connection socket
+    client (tuple(str, int)): client IP and port
     """
+    ip, port = client
     log = utility.ServerLogger(ip, port)
     log.info('connection accepted')
 
@@ -133,25 +134,63 @@ def handle_connection(conn, ip, port):
         conn.close()
         log.info('connection closed by server')
 
+def secure_socket(socket):
+    """
+    This function wraps the socket and returns a TLS socket. TLS must be enabled
+    in the config module. Otherwise, the passed socket is returned unmodified.
+    This function terminates the server program if an error occurs.
+
+    Parameters:
+    socket (socket): a regular listening socket
+
+    Returns:
+    socket or SSLSocket: a TLS socket, if TLS is enabled, the unmodified socket otherwise
+    """
+    if config.tls_cert and config.tls_key:
+        try:
+            context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
+            context.minimum_version = ssl.TLSVersion.TLSv1_2
+            context.load_cert_chain(
+                certfile=utility.abs_path(config.tls_cert),
+                keyfile=utility.abs_path(config.tls_key))
+            print('TLS enabled')
+
+            return context.wrap_socket(socket, server_side=True)
+
+        except (FileNotFoundError, IsADirectoryError, TypeError):
+            exit('Error: the specified key or certificate file could not be found')
+        except ssl.SSLError as e:
+            exit(f'TLS error while loading certificate and key: {e}')
+
+    return socket
+
 print("""This is free software with ABSOLUTELY NO WARRANTY.
-Licensed under the GPL version 3 (see LICENSE).""")
+Licensed under the GPL version 3 (see LICENSE).
+""")
 
-try:
-    # create listening socket:
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sd:
-        sd.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        sd.bind((config.ip, config.port))
-        sd.listen()
+print('Server starting')
 
-        print(f'Listening on {config.ip}:{config.port}')
+# create listening socket:
+with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sd:
+    sd.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    sd.bind((config.ip, config.port))
+    sd.listen()
 
+    with secure_socket(sd) as sd:
+        print(f'Listening on {config.ip if config.ip else 'any'}:{config.port}')
+        log = utility.ServerLogger()
+
+        # accept connections and handle them in separate threads:
         while True:
-            # accept a connection:
-            conn, client = sd.accept()
-            ip, port = client
+            try:
+                conn, client = sd.accept()
 
-            # handle connection in separate thread:
-            t = threading.Thread(target=handle_connection, args=(conn, ip, port), daemon=True)
-            t.start()
-except KeyboardInterrupt:
-    print('')
+                threading.Thread(target=handle_connection, args=(conn, client),
+                                 daemon=True).start()
+            except KeyboardInterrupt:
+                print('\nServer shutting down')
+                exit()
+            except ssl.SSLError as e:
+                log.error(f'TLS error: {e}')
+            except:
+                log.error('unexpected exception on the server:\n' + traceback.format_exc())

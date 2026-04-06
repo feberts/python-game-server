@@ -26,18 +26,18 @@ be used to
 - submit moves to the server
 - retrieve the game state
 - passively observe a specific player
-- restart a game without starting a new session
+- restart a game within the current session
+- enable TLS
 """
 
 import json
+import os
 import socket
+import ssl
 import traceback
 
-class GameServerError(Exception):
-    pass
-
-class IllegalMove(Exception):
-    pass
+class GameServerError(Exception): pass
+class IllegalMove(Exception): pass
 
 class GameServerAPI:
     """
@@ -101,8 +101,9 @@ class GameServerAPI:
         self._observer = False
 
         # tcp connections:
-        self._buffer_size = 4096 # bytes, corresponds to server-side buffer size value
+        self._buffer_size = 4096 # bytes, corresponds to server-side buffer size
         self._request_size_max = int(1e6) # bytes, updated after joining a game
+        self._tls_context = None
 
     def join(self):
         """
@@ -300,6 +301,34 @@ class GameServerAPI:
 
         if err: raise GameServerError(err)
 
+    def enable_tls(self, cert=''):
+        """
+        Calling this function enables TLS encryption. By providing a
+        certificate, identity verification of the server is performed in
+        addition to encryption.
+
+        The server must have TLS enabled.
+
+        Parameters:
+        cert (str): certificate file (optional)
+
+        Raises:
+        GameServerError: if loading the certificate failed
+        """
+        try:
+            self._tls_context = ssl.create_default_context()
+
+            if cert:
+                cert = self._abs_path(cert)
+                self._tls_context.load_verify_locations(cert)
+            else:
+                self._tls_context.check_hostname = False
+                self._tls_context.verify_mode = ssl.CERT_NONE
+        except (FileNotFoundError, IsADirectoryError, TypeError):
+            raise GameServerError('the specified certificate file could not be found')
+        except ssl.SSLError as e:
+            raise GameServerError(f'TLS error while loading certificate: {e}')
+
     def _send(self, data):
         """
         Send data to the server and receive its response.
@@ -315,7 +344,7 @@ class GameServerAPI:
         tuple(dict, str, str):
             dict: data returned by server, None in case of an error
             str: error message if a problem occurred, None otherwise
-            str: status (okay or error type)
+            str: error type in case of an error, okay otherwise
         """
         # prepare data:
         try:
@@ -328,47 +357,92 @@ class GameServerAPI:
 
         # create a socket:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sd:
-            try:
-                # connect to server:
-                sd.settimeout(5)
-                sd.connect((self._server, self._port))
-                sd.settimeout(None) # let server handle timeouts
-            except:
-                return self._api_error(f'unable to connect to {self._server}:{self._port}')
+            with self._secure_socket(sd) as sd:
+                try:
+                    # connect to server:
+                    sd.settimeout(5)
+                    sd.connect((self._server, self._port))
+                    sd.settimeout(None) # let server handle timeouts
+                except ssl.SSLError as e:
+                    return self._api_error(f'TLS error: {e}')
+                except:
+                    return self._api_error(f'unable to connect to {self._server}:{self._port}')
 
-            try:
-                # send data to server:
-                sd.sendall(request)
+                try:
+                    # send data to server:
+                    sd.sendall(request)
 
-                # receive data from server:
-                response = bytearray()
+                    # receive server response:
+                    response = bytearray()
 
-                while True:
-                    data = sd.recv(self._buffer_size)
-                    if not data: break
-                    response += data
+                    while True:
+                        data = sd.recv(self._buffer_size)
+                        if not data: break
+                        response += data
 
-                if not response: raise self._NoResponse
-                response = json.loads(response.decode())
+                    if not response: raise self._NoResponse
+                    response = json.loads(response.decode())
 
-                # return data:
-                if response['status'] != 'ok': # server responded with an error
-                    return None, response['message'], response['status']
+                    # return data:
+                    if response['status'] != 'ok': # server responded with an error
+                        return None, response['message'], response['status']
 
-                return response['data'], None, None
+                    return response['data'], None, None
 
-            except socket.timeout:
-                return self._api_error('connection timed out')
-            except self._NoResponse:
-                return self._api_error('empty or no response received from server')
-            except (ConnectionResetError, BrokenPipeError):
-                return self._api_error('connection closed by server')
-            except UnicodeDecodeError:
-                return self._api_error('could not decode binary data received from server')
-            except json.decoder.JSONDecodeError:
-                return self._api_error('corrupt json received from server')
-            except:
-                return self._api_error('unexpected exception:\n' + traceback.format_exc())
+                except socket.timeout:
+                    return self._api_error('connection timed out')
+                except self._NoResponse:
+                    return self._api_error('empty or no response received from server')
+                except (ConnectionResetError, BrokenPipeError):
+                    return self._api_error('connection closed by server')
+                except UnicodeDecodeError:
+                    return self._api_error('could not decode binary data received from server')
+                except json.decoder.JSONDecodeError:
+                    return self._api_error('corrupt json received from server')
+                except:
+                    return self._api_error('unexpected exception:\n' + traceback.format_exc())
+
+    def _secure_socket(self, socket):
+        """
+        This function wraps the socket and returns a TLS socket. TLS must be
+        enabled by calling API function enable_tls. Otherwise, the passed socket
+        is returned unmodified. If a certificate was passed to function
+        enable_tls, identity verification of the server is enabled. Without a
+        certificate, TLS is used for encryption only.
+
+        Parameters:
+        socket (socket): a regular socket
+
+        Returns:
+        socket or SSLSocket: a TLS socket, if TLS is enabled, the unmodified socket otherwise
+
+        Raises:
+        ssl.SSLError: if the creation of the TLS socket failed (lazy, raised after connect())
+        """
+        if self._tls_context:
+            return self._tls_context.wrap_socket(socket, server_hostname=self._server)
+
+        return socket
+
+    def _abs_path(self, file_name):
+        """
+        Always returns the file name with its absolute path, regardless of where
+        the file is located or from where the program was called.
+
+        Parameters:
+        file_name (str): file name with relative or absolute path
+
+        Returns:
+        str: file name with absolute path
+
+        Raises:
+        TypeError: if argument is not of type str
+        IsADirectoryError: if argument is a directory
+        """
+        if not file_name or os.path.isabs(file_name):
+            return file_name
+
+        return os.path.join(os.path.abspath(os.path.dirname(__file__)), file_name)
 
     @staticmethod
     def _api_error(message):
@@ -381,5 +455,4 @@ class GameServerAPI:
     def _error(message):
         return 'Invalid argument: ' + message
 
-    class _NoResponse(Exception):
-        pass
+    class _NoResponse(Exception): pass

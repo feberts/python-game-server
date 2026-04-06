@@ -10,6 +10,8 @@ A lightweight server and framework for turn-based multiplayer games.
 
 ![](.github/game_server.svg)
 
+Basic Python skills are sufficient to implement clients or add new games to the server.
+
 ## Overview
 
 ### Features
@@ -32,11 +34,11 @@ To try this project on your machine, start the server (`server/game_server.py`),
 
 ### About this project
 
-This server was developed for use in a university programming course, where students learn Python as their first programming language and have to work on projects in small groups. Both the framework and the API are designed so that the programming skills acquired during the first term are sufficient to implement new games and clients. However, the use of the server is not limited to educational scenarios.
+This server was developed for use in a university programming course, where students learn Python as their first programming language and work on projects in small groups. Both the framework and the API are designed so that the programming skills acquired during the first term are sufficient to implement new games and clients. However, the use of the server is not limited to educational scenarios.
 
 ## Operating the server
 
-To run the server in a network, edit IP and port in the configuration file (`server/config.py`). If you intend to run the server as a systemd service, you can use the provided unit file as a starting point. Server and API are implemented in plain Python. Only modules from the standard library are used. This makes the server easy to handle.
+To run the server in a network, edit IP and port in the configuration file (`server/config.py`). TLS can also be enabled there. If you intend to run the server as a systemd service, you can use the provided unit file. Server and API are implemented in plain Python. Only modules from the standard library are used. This makes the server easy to handle.
 
 ## Implementing clients
 
@@ -46,7 +48,8 @@ Module `game_server_api` provides an API for communicating with the server. It a
 - submit moves
 - retrieve the game state
 - passively observe another player
-- start a new game within the current session
+- restart a game within the current session
+- enable TLS
 
 Here is a short demo of the API usage:
 
