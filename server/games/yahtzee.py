@@ -111,12 +111,12 @@ class Yahtzee(AbstractGame):
 
         return None
 
-    def move(self, args, player_id): # override
+    def move(self, move, player_id): # override
         """
         Handling a player's move.
 
         The type of move is determined and then passed to the corresponding
-        function. The required content of dictionary args depends on the phase
+        function. The required content of dictionary move depends on the phase
         of the game. In the first phase, all players must send their names
         before any turns can be performed. From then on, players can roll their
         dice, add points to their scorecards, or cross out categories.
@@ -128,24 +128,24 @@ class Yahtzee(AbstractGame):
         'category': name of a category, must be supplied in addition to 'score'
 
         Parameters:
-        args (dict): the current player's move
+        move (dict): the current player's move
         player_id (int): player ID
 
         Returns:
         str: error message in case the move was illegal, None otherwise
         """
-        if 'roll_dice' in args:
-            return self._roll_dice(args['roll_dice'])
-        if 'score' in args:
-            if 'category' not in args:
+        if 'roll_dice' in move:
+            return self._roll_dice(move['roll_dice'])
+        if 'score' in move:
+            if 'category' not in move:
                 return 'a category must be passed'
-            if args['score'] == 'add points':
-                return self._add_points(args['category'])
-            if args['score'] == 'cross out':
-                return self._cross_out(args['category'])
+            if move['score'] == 'add points':
+                return self._add_points(move['category'])
+            if move['score'] == 'cross out':
+                return self._cross_out(move['category'])
             return 'no such score operation'
-        if 'name' in args:
-            return self._set_name(args['name'].strip(), player_id)
+        if 'name' in move:
+            return self._set_name(move['name'].strip(), player_id)
         return 'no such move'
 
     def _roll_dice(self, dice=None):

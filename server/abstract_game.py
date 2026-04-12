@@ -79,7 +79,7 @@ class AbstractGame:
         """
         raise NotImplementedError
 
-    def move(self, args, player_id):
+    def move(self, move, player_id):
         """
         Handle a move.
 
@@ -114,7 +114,7 @@ class AbstractGame:
         error object.
 
         Parameters:
-        args (dict): the player's move (must be checked)
+        move (dict): the player's move (must be checked)
         player_id (int): ID of the player submitting the move (no parameter check required)
 
         Returns:

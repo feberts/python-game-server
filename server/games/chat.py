@@ -23,19 +23,19 @@ class Chat(AbstractGame):
     def current_player(self):
         return list(range(self._players))
 
-    def move(self, args, player_id):
-        if 'name' in args:
-            name = args['name'].strip()
+    def move(self, move, player_id):
+        if 'name' in move:
+            name = move['name'].strip()
             if name in self._names.values():
                 return 'name already in use'
             if name == '':
                 return 'name must not be an empty string'
             self._names[player_id] = name
 
-        if 'message' in args:
+        if 'message' in move:
             if player_id not in self._names:
                 return 'you must submit your name first'
-            message = args['message'].strip()
+            message = move['message'].strip()
             if message == '':
                 return None
             self._messages.append((self._names[player_id], message))

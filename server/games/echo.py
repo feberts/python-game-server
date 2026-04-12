@@ -28,11 +28,11 @@ class Echo(AbstractGame):
     def current_player(self):
         return [0]
 
-    def move(self, args, player_id):
-        if 'msg' not in args:
+    def move(self, move, player_id):
+        if 'msg' not in move:
             return "keyword argument 'msg' missing"
 
-        self._message = args['msg']
+        self._message = move['msg']
 
         if self._message == 'quit':
             self._gameover = True

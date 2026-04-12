@@ -47,7 +47,7 @@ class TicTacToe(AbstractGame):
         """
         return {'board':self._state.board, 'winner':self._state.winner}
 
-    def move(self, args, player_id): # override
+    def move(self, move, player_id): # override
         """
         Submit a move.
 
@@ -55,18 +55,18 @@ class TicTacToe(AbstractGame):
         board position (0-8) as its value.
 
         Parameters:
-        args (dict): the current player's move
+        move (dict): the current player's move
         player_id (int): player ID (unused)
 
         Returns:
         str: error message in case the move was illegal, None otherwise
         """
-        if 'position' not in args:
+        if 'position' not in move:
             return "keyword argument 'position' of type int missing"
-        if type(args['position']) != int:
+        if type(move['position']) != int:
             return "type of argument 'position' must be int"
 
-        pos = int(args['position'])
+        pos = int(move['position'])
         err = self._check_move(pos)
         if err: return err
 

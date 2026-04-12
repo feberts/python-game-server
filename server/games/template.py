@@ -96,7 +96,7 @@ class MyNewGame(AbstractGame): # TODO pick a proper name
         raise NotImplementedError
         # TODO return a list (!) of player IDs
 
-    def move(self, args, player_id):
+    def move(self, move, player_id):
         """
         Handle a move.
 
@@ -131,7 +131,7 @@ class MyNewGame(AbstractGame): # TODO pick a proper name
         error object.
 
         Parameters:
-        args (dict): the player's move (must be checked)
+        move (dict): the player's move (must be checked)
         player_id (int): ID of the player submitting the move (no parameter check required)
 
         Returns:
