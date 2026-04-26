@@ -30,7 +30,12 @@ Basic Python skills are sufficient to implement clients or add new games to the 
 
 ### Quick start
 
-To try this project on your machine, start the server (`server/game_server.py`), then run two clients (`client/tictactoe_client.py`) in separate shells. The only requirement is a regular Python installation.
+To try this project on your machine
+
+1. start the server (`server/game_server.py`)
+2. then run two clients (`client/tictactoe_client.py`) in separate shells
+
+The only requirement is a regular Python installation.
 
 ### About this project
 
@@ -38,7 +43,9 @@ This server was developed for use in a university programming course, where stud
 
 ## Operating the server
 
-To run the server in a network, edit IP and port in the configuration file (`server/config.py`). TLS can also be enabled there. If you intend to run the server as a systemd service, you can use the provided unit file. Server and API are implemented in plain Python. Only modules from the standard library are used. This makes the server easy to handle.
+To run the server in a network, edit IP and port in the configuration file (`server/config.py`). TLS along with other settings can also be configured there. If you intend to run the server as a systemd service, you can use the provided unit file. Server and API are implemented in plain Python. Only modules from the standard library are used. This makes the server easy to handle.
+
+Learn more in the [Wiki](https://github.com/feberts/python-game-server/wiki).
 
 ## Implementing clients
 
@@ -56,16 +63,16 @@ Here is a short demo of the API usage:
 ```py
 from game_server_api import GameServerAPI
 
-game = GameServerAPI(server='127.0.0.1', port=4711, game='Yahtzee', players=2,
+game = GameServerAPI(server='127.0.0.1', port=4711, game='TicTacToe', players=2,
                      session='mygame') # pass 'auto' to auto-join a session (default)
 
 my_id = game.join()    # start/join a session - each client is assigned an ID
 game.move(position=5)  # perform a move - the function accepts keyword arguments (**kwargs)
 state = game.state()   # returns a dictionary representing the game state, including
-                       # the ID of the current player(s)
+                       # the ID(s) of the current player(s)
 ```
 
-The [API module](client/game_server_api.py) itself is documented in detail. You can also take a look at the demo clients and the [wiki](https://github.com/feberts/python-game-server/wiki).
+The [API module](client/game_server_api.py) itself is documented in detail. You should also take a look at the demo clients and the [Wiki](https://github.com/feberts/python-game-server/wiki).
 
 ## Adding new games
 
@@ -86,11 +93,10 @@ An observer will receive the same data as the observed player does when retrievi
 
 - The observer mode can be used to split up the work in a team. One client could be implemented for the user interaction and another one to display the game board.
 - In a similar way, it can be used as a substitute for multithreading, which is usually not taught in a beginner programming course. Suppose you want to implement a chat client that displays incoming messages continuously while allowing the user to write a new message at the same time. To achieve this, two threads of execution could be used. Alternatively, the observer mode can be used to implement separate clients for input and output.
-- It could also be used to visualize the performance of a reinforcement learning agent.
 
 ## Contributing
 
-Contributions are welcome. Feel free to create a pull request or open an issue.
+Contributions are welcome. Feel free to create a pull request, open an issue or use the Discussions section.
 
 ## License
 
