@@ -155,7 +155,7 @@ class GameServerAPI:
 
         return self._player_id
 
-    def move(self, **kwargs):
+    def move(self, **move):
         """
         Submit a move.
 
@@ -169,7 +169,7 @@ class GameServerAPI:
         handling.
 
         Parameters:
-        kwargs (keyword arguments): a player's move
+        move (keyword arguments): the player's move
 
         Raises:
         IllegalMove: in case of an illegal move
@@ -184,7 +184,7 @@ class GameServerAPI:
             'session':self._session,
             'player_id':self._player_id,
             'key':self._key,
-            'move':kwargs})
+            'move':move})
 
         if err:
             if status == 'illegalmove':
