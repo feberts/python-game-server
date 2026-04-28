@@ -64,11 +64,11 @@ class ServerLogger:
         """
         self._client = f' {ip}:{port}' if ip else ''
 
-    def info(self, message):
+    def tcp(self, message):
         """
-        Log server information. See function _log for details.
+        Log TCP related information. See function _log for details.
         """
-        if config.log_server_info:
+        if config.log_server_tcp:
             self._log(message)
 
     def error(self, message):

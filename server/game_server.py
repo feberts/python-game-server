@@ -41,6 +41,9 @@ framework = game_framework.GameFramework()
 class ClientDisconnect(Exception): pass
 class RequestSizeExceeded(Exception): pass
 
+connection_timeout = 60 # seconds, timeout for tcp transactions
+buffer_size = 4096 # bytes, corresponds to client-side buffer size value
+
 def handle_connection(conn, client):
     """
     Handling a connection.
@@ -53,9 +56,8 @@ def handle_connection(conn, client):
 
     Data is expected to be received in JSON format and it is also sent back to
     the client in JSON format. The connection has a server side timeout and the
-    amount of data accepted in a single request is limited by the server. The
-    corresponding parameters are defined in the config module. Whenever
-    possible, error messages are sent back to the client.
+    amount of data accepted in a single request is limited by the server.
+    Whenever possible, error messages are sent back to the client.
 
     Parameters:
     conn (socket or SSLSocket): connection socket
@@ -63,9 +65,9 @@ def handle_connection(conn, client):
     """
     ip, port = client
     log = utility.ServerLogger(ip, port)
-    log.info('connection accepted')
+    log.tcp('connection accepted')
 
-    conn.settimeout(config.connection_timeout)
+    conn.settimeout(connection_timeout)
 
     try:
         try:
@@ -73,13 +75,13 @@ def handle_connection(conn, client):
             request = bytearray()
 
             while True:
-                data = conn.recv(config.buffer_size)
+                data = conn.recv(buffer_size)
                 if not data: raise ClientDisconnect
                 request += data
                 if len(request) > config.request_size_max: raise RequestSizeExceeded
                 if request.endswith(b'EOT\0'): break
 
-            log.info(f'received {len(request)} bytes: {request}')
+            log.tcp(f'received {len(request)} bytes: {request}')
             request = request[:-4] # strip EOT
             request = json.loads(request.decode())
 
@@ -122,7 +124,7 @@ def handle_connection(conn, client):
                 response = json.dumps(response).encode()
 
             conn.sendall(response)
-            log.info(f'responding: {response}')
+            log.tcp(f'responding: {response}')
 
     except BrokenPipeError:
         log.error('connection closed by client after sending request')
@@ -132,7 +134,7 @@ def handle_connection(conn, client):
         log.error('unexpected exception on the server:\n' + traceback.format_exc())
     finally:
         conn.close()
-        log.info('connection closed by server')
+        log.tcp('connection closed by server')
 
 def secure_socket(socket):
     """
@@ -153,6 +155,7 @@ def secure_socket(socket):
             context.load_cert_chain(
                 certfile=utility.abs_path(config.tls_cert),
                 keyfile=utility.abs_path(config.tls_key))
+
             print('TLS enabled')
 
             return context.wrap_socket(socket, server_side=True)
