@@ -48,15 +48,15 @@ class GameServerAPI:
 
     def __init__(self, server, port, game, session='auto', players=None, name=''):
         """
-        Parameters needed in order to connect to the server and to start or join
-        a game session are passed to this constructor. Parameter game specifies
-        the game to be started. It corresponds to the name of the game class on
-        the server. To be able to join a specific game session, all participants
-        need to agree on a session token and pass it to the constructor. The
-        token is used to identify the game session. Alternatively, you can have
-        the server automatically assign you to a session by passing 'auto' as
-        the token (this is the default). Refer to function join for more
-        information.
+        Information needed in order to connect to the server and to start or
+        join a game session is passed to this constructor. Parameter game
+        specifies the game to be started. It corresponds to the name of the game
+        class on the server. To be able to join a specific game session, all
+        participants need to agree on a session token and pass it to the
+        constructor. The token is used to identify the game session.
+        Alternatively, you can have the server automatically assign you to a
+        session by passing 'auto' as the token (this is the default). Refer to
+        function join for more information.
 
         The optional parameter players is required by function join in order to
         start a new game session with the specified number of players. If the
@@ -70,7 +70,7 @@ class GameServerAPI:
         you do.
 
         Parameters:
-        server (str): server
+        server (str): IP or hostname
         port (int): port number
         game (str): name of the game
         session (str): name of the game session (optional), 'auto' for auto-join (default)
@@ -127,7 +127,7 @@ class GameServerAPI:
           exists that can be joined, a new one is started. Existing sessions are
           never terminated. This method of starting and joining sessions does
           not interfere with the above method. To achieve this, the server
-          creates unique tokens internally.
+          creates a unique token internally.
 
         The game starts as soon as the required number of clients has joined the
         game. The function then returns the player ID. The server assigns IDs in
@@ -206,10 +206,10 @@ class GameServerAPI:
         Independent of the game, the dictionary always contains these two keys:
 
         - 'current': a list of player IDs, indicating whose player's turn it is
-        - 'gameover': a boolean value indicating whether the game is over or
-          still active
+        - 'gameover': a boolean value indicating whether the game has ended or
+          is still active
 
-        This function will block until the game state changes. Only then does
+        This function will block until the game state changes. Only then will
         the server respond with the updated state. This is more efficient than
         polling. To avoid deadlocks, the function never blocks in these
         situations:
@@ -217,7 +217,7 @@ class GameServerAPI:
         - when the game has just started to allow clients to get the initial
           state
         - after a move was performed to allow clients to get the new state
-        - when the game was restarted and a client still has to get the old
+        - when the game was restarted and a client still has to get the previous
           game's state
 
         Returns:
@@ -284,8 +284,10 @@ class GameServerAPI:
         Restart a game.
 
         This function restarts the current game. There is no need to rejoin the
-        session, and all players will keep their IDs. This is useful when
-        simulating many games to collect data for AI training.
+        session, and all players will keep their IDs. The server ensures that
+        all clients will receive the state of the previous game a last time
+        before receiving the new game's state. This way they will not miss the
+        end/outcome of the previous game.
 
         Raises:
         GameServerError: in case the game could not be restarted
