@@ -39,13 +39,7 @@ The only requirement is a regular Python installation.
 
 ### About this project
 
-This server was developed for use in a university programming course, where students learn Python as their first programming language and work on projects in small groups. Both the framework and the API are designed so that the programming skills acquired during the first term are sufficient to implement new games and clients. However, the use of the server is not limited to educational scenarios.
-
-## Operating the server
-
-To run the server in a network, edit IP and port in the configuration file (`server/config.py`). TLS along with other settings can also be configured there. If you intend to run the server as a systemd service, you can use the provided unit file. Server and API are implemented in plain Python. Only modules from the standard library are used. This makes the server easy to handle.
-
-Learn more in the [Wiki](https://github.com/feberts/python-game-server/wiki).
+This server was developed for use in a programming course, where students learn Python as their first programming language and work on projects in small groups. Both the framework and the API are designed so that basic programming skills are sufficient to implement new games and clients. However, the use of the server is not limited to educational scenarios. Learn more in the [Wiki](https://github.com/feberts/python-game-server/wiki).
 
 ## Implementing clients
 
@@ -56,23 +50,27 @@ Module `game_server_api` provides an API for communicating with the server. It a
 - retrieve the game state
 - passively observe another player
 - restart a game within the current session
-- enable TLS
 
 Here is a short demo of the API usage:
 
 ```py
-from game_server_api import GameServerAPI
+from game_server_api import GameServerAPI, IllegalMove
 
 game = GameServerAPI(server='127.0.0.1', port=4711, game='TicTacToe', players=2,
                      session='mygame') # pass 'auto' to auto-join a session (default)
 
-my_id = game.join()    # start/join a session - each client is assigned an ID
-game.move(position=5)  # perform a move - the function accepts keyword arguments (**kwargs)
-state = game.state()   # returns a dictionary representing the game state, including
-                       # the ID(s) of the current player(s)
+player_id = game.join() # start/join a session - each client is assigned an ID
+
+try:
+    game.move(position=5) # perform a move - the function accepts keyword arguments
+except IllegalMove as e:
+    print(e)
+
+state = game.state() # returns a dictionary representing the game state, including
+                     # a list of player IDs indicating whose turn it is
 ```
 
-The [API module](client/game_server_api.py) itself is documented in detail. You should also take a look at the demo clients and the [Wiki](https://github.com/feberts/python-game-server/wiki).
+The [API module](client/game_server_api.py) itself is documented in detail. You can also take a look at the demo clients and the [Wiki](https://github.com/feberts/python-game-server/wiki).
 
 ## Adding new games
 
@@ -86,6 +84,12 @@ Adding a new game is easy. All you have to do is derive from a base class and ov
 To make things even easier, you can use the [template](server/games/template.py) (`server/games/template.py`), which is structured like a tutorial.
 
 No modifications to the API are required when adding new games. It was designed to be compatible with any game. The function to submit a move accepts keyword arguments (`**kwargs`). These are sent to the server, where they are passed to the corresponding function of the game class as a dictionary. The game state is also sent back as a dictionary. This allows for a maximum of flexibility.
+
+## Operating the server
+
+To run the server in a network, edit IP and port in the configuration file (`server/config.py`). TLS along with other settings can also be configured there. If you intend to run the server as a systemd service, you can use the provided unit file. Server and API are implemented in plain Python. Only modules from the standard library are used. This makes the server easy to handle.
+
+Learn more in the [Wiki](https://github.com/feberts/python-game-server/wiki).
 
 ## Observer mode
 
