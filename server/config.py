@@ -30,6 +30,7 @@ game_timeout = 1000 # seconds, timeout for inactive games and for joining a game
 # LOGGING:
 log_server_errors = True      # errors related to client-server communication
 log_server_tcp = False        # useful for debugging TCP connections
+log_server_info = True        # general server information
 log_framework_request = True  # client requests such as moves, game state or join request
 log_framework_response = True # server responses such as game states or error messages
 log_framework_actions = True  # starting and terminating game sessions

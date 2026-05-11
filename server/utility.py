@@ -78,6 +78,13 @@ class ServerLogger:
         if config.log_server_errors:
             self._log(message)
 
+    def info(self, message):
+        """
+        Log general server information. See function _log for details.
+        """
+        if config.log_server_info:
+            self._log(message)
+
     def _log(self, message):
         """
         Print log message.

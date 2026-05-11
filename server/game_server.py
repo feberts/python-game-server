@@ -89,7 +89,8 @@ def handle_connection(conn, client):
             try:
                 response = framework.handle_request(request)
             except:
-                log.error('unexpected exception in the framework:\n' + traceback.format_exc())
+                log.error('unexpected exception caught in the framework:\n' +
+                          traceback.format_exc())
                 response = utility.framework_error('internal error')
 
         except RequestSizeExceeded:
@@ -111,7 +112,7 @@ def handle_connection(conn, client):
             log.error('corrupt json received from client')
             response = utility.server_error('corrupt json received from client')
         except:
-            log.error('unexpected exception on the server:\n' + traceback.format_exc())
+            log.error('unexpected exception caught on the server:\n' + traceback.format_exc())
             response = utility.server_error('internal error')
 
         # send response to client:
@@ -131,7 +132,7 @@ def handle_connection(conn, client):
     except ConnectionResetError:
         log.error('connection reset by client after sending request')
     except:
-        log.error('unexpected exception on the server:\n' + traceback.format_exc())
+        log.error('unexpected exception caught on the server:\n' + traceback.format_exc())
     finally:
         conn.close()
         log.tcp('connection closed by server')
@@ -155,10 +156,11 @@ def secure_socket(socket):
             context.load_cert_chain(
                 certfile=utility.abs_path(config.tls_cert),
                 keyfile=utility.abs_path(config.tls_key))
+            ssocket = context.wrap_socket(socket, server_side=True)
 
-            print('TLS enabled')
+            log.info('TLS enabled')
 
-            return context.wrap_socket(socket, server_side=True)
+            return ssocket
 
         except (FileNotFoundError, IsADirectoryError, TypeError):
             exit('Error: the specified key or certificate file could not be found')
@@ -171,29 +173,26 @@ print("""This is free software with ABSOLUTELY NO WARRANTY.
 Licensed under the GPL version 3 (see LICENSE).
 """)
 
-print('Server starting')
+log = utility.ServerLogger()
+log.info('Server starting')
 
-# create listening socket:
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sd:
     sd.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     sd.bind((config.ip, config.port))
     sd.listen()
 
     with secure_socket(sd) as sd:
-        print(f'Listening on {config.ip if config.ip else 'any'}:{config.port}')
-        log = utility.ServerLogger()
+        log.info(f'Listening on {config.ip if config.ip else 'any'}:{config.port}')
 
         # accept connections and handle them in separate threads:
         while True:
             try:
                 conn, client = sd.accept()
-
                 threading.Thread(target=handle_connection, args=(conn, client),
                                  daemon=True).start()
             except KeyboardInterrupt:
-                print('\nServer shutting down')
-                exit()
+                exit('\nServer shutting down')
             except ssl.SSLError as e:
                 log.error(f'TLS error: {e}')
             except:
-                log.error('unexpected exception on the server:\n' + traceback.format_exc())
+                log.error('unexpected exception caught on the server:\n' + traceback.format_exc())
