@@ -8,7 +8,6 @@ actions are performed. The following requests can be handled by the framework:
 - starting and joining a game session
 - submitting a move
 - requesting the game state
-- observing a player
 - restarting a game
 
 To perform these actions, the framework calls the methods of the corresponding
@@ -40,7 +39,6 @@ class GameFramework:
             'join':self._join,
             'move':self._move,
             'state':self._state,
-            'observe':self._observe,
             'restart':self._restart}
         self._build_game_class_dict()
         self._start_clean_up()
@@ -103,13 +101,12 @@ class GameFramework:
         """
         # check and parse request:
         err = utility.check_dict(request, {
-            'game':str, 'session':str, 'players':(int, type(None)), 'name':str})
+            'game':str, 'session':str, 'players':(int, type(None))})
         if err: return utility.framework_error(err)
 
         game_name = request['game']
         token = request['session']
         players = request['players']
-        name = request['name']
 
         if game_name not in self._game_classes:
             return utility.framework_error('no such game')
@@ -120,23 +117,22 @@ class GameFramework:
         # generate token for auto-joining clients:
         if token == self._AUTO:
             token = self._generate_auto_join_token(game_name, players)
-            name = '' # no observer mode for auto-join sessions
 
         # retrieve game session, if it exists:
         session, _ = self._retrieve_session(game_name, token)
 
         # start or join a session:
         if session and not session.full():
-            return self._join_session(session, name, token)
+            return self._join_session(session, token)
         elif not session and not players:
             return utility.framework_error(
                 'no such game session; provide the number of players to start one')
         elif session and session.full() and not players:
             return utility.framework_error('game session already full')
         else:
-            return self._start_session(game_name, token, players, name)
+            return self._start_session(game_name, token, players)
 
-    def _start_session(self, game_name, token, players, name):
+    def _start_session(self, game_name, token, players):
         """
         Starting a game session.
 
@@ -157,7 +153,6 @@ class GameFramework:
         game_name (str): name of the game
         token (str): name of the game session
         players (int): total number of players
-        name (str): player name, can be an empty string
 
         Returns:
         dict: containing the player's ID and key
@@ -180,7 +175,7 @@ class GameFramework:
         self._game_sessions[(game_name, token)] = session
 
         # get player ID and key:
-        player_id, key, _ = session.next_id(name)
+        player_id, key, _ = session.next_id()
 
         # wait for others to join:
         self._await_game_start(session)
@@ -199,7 +194,7 @@ class GameFramework:
             'session':token,
             'request_size_max':config.request_size_max})
 
-    def _join_session(self, session, name, token):
+    def _join_session(self, session, token):
         """
         Joining a game session.
 
@@ -215,14 +210,13 @@ class GameFramework:
 
         Parameters:
         session (GameSession): game session
-        name (str): player name, can be an empty string
         token (str): name of the game session
 
         Returns:
         dict: containing the player's ID and key
         """
         # get player ID and key:
-        player_id, key, err = session.next_id(name)
+        player_id, key, err = session.next_id()
         if err: return utility.framework_error(err)
 
         # wait for others to join:
@@ -302,14 +296,13 @@ class GameFramework:
         """
         # check and parse request:
         err = utility.check_dict(request, {
-            'game':str, 'session':str, 'player_id':int, 'key':str, 'observer':bool})
+            'game':str, 'session':str, 'player_id':int, 'key':str})
         if err: return utility.framework_error(err)
 
         game_name = request['game']
         token = request['session']
         player_id = request['player_id']
         key = request['key']
-        observer = request['observer']
 
         # retrieve the game session:
         session, err = self._retrieve_session(game_name, token)
@@ -321,7 +314,7 @@ class GameFramework:
             return utility.framework_error('invalid key')
 
         # retrieve the game state:
-        state = session.game_state(player_id, observer)
+        state = session.game_state(player_id)
 
         # check if session was overwritten while clients are waiting for state change:
         if session.overwritten():
@@ -332,47 +325,6 @@ class GameFramework:
             return utility.framework_error('game session has timed out')
 
         return self._return_data(state)
-
-    def _observe(self, request):
-        """
-        Request handler for observing another player.
-
-        To observe another player in the same game session, the observing client
-        needs to know the ID of that player. This function retrieves that ID
-        based on the player's name. This only works, if the player has supplied
-        a name when joining the game session. The observed player's key is sent
-        to the client as well. The observer mode is not available for auto-join
-        sessions.
-
-        Parameters:
-        request (dict): request containing game name, token and player to be observed
-
-        Returns:
-        dict: containing the ID of the observed player
-        """
-        # check and parse request:
-        err = utility.check_dict(request, {'game':str, 'session':str, 'name':str})
-        if err: return utility.framework_error(err)
-
-        game_name = request['game']
-        token = request['session']
-        player_name = request['name']
-
-        if token == self._AUTO:
-            return utility.framework_error('observer mode not available for auto-join sessions')
-
-        # retrieve game session:
-        session, err = self._retrieve_session(game_name, token)
-        if err: # no such game or game session
-            return err
-        if not session.full(): # game has not yet started
-            return utility.framework_error('game has not yet started')
-
-        # get player ID and key:
-        player_id, key, err = session.get_id(player_name)
-        if err: return utility.framework_error(err)
-
-        return self._return_data({'player_id':player_id, 'key':key})
 
     def _restart(self, request):
         """
