@@ -17,7 +17,6 @@ def fail(msg):
 
 GAME = 'Echo'
 SESSION = 'test'
-NAME = 'bob'
 
 try:
     game_err = GameServerAPI(SERVER, PORT, 'InvalidGame', SESSION, 1)
@@ -47,7 +46,7 @@ try:
 except GameServerError:
     pass
 
-game = GameServerAPI(SERVER, PORT, GAME, SESSION, 1, NAME)
+game = GameServerAPI(SERVER, PORT, GAME, SESSION, 1)
 
 try:
     game.move(msg='invalid')
