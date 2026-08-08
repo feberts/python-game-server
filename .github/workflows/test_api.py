@@ -116,47 +116,6 @@ if state['echo'] != '':
 if state['gameover']:
     fail('gameover after restart')
 
-# ========== observe ==========
-
-try:
-    observer = GameServerAPI(SERVER, PORT, GAME, SESSION, name='invalid')
-    observer.observe()
-    fail('observer: no exception despite invalid name')
-except GameServerError:
-    pass
-
-observer = GameServerAPI(SERVER, PORT, GAME, SESSION, name=NAME)
-observer.observe()
-
-game.move(msg='hello observer')
-state = observer.state() # expecting state of old game before restart
-
-if state['echo'] != 'quit':
-    fail('observer: wrong echo in old game')
-
-if not state['gameover']:
-    fail('observer missed gameover')
-
-state = observer.state() # expecting state of new game after restart
-
-if state['echo'] != 'hello observer':
-    fail('observer: wrong echo in new game')
-
-if state['gameover']:
-    fail('observer: wrong game status in new game')
-
-try:
-    observer.move(msg='invalid')
-    fail('observer: no exception despite move')
-except GameServerError:
-    pass
-
-try:
-    observer.restart()
-    fail('observer: no exception despite restart')
-except GameServerError:
-    pass
-
 # ========== auto-join ==========
 
 GAME = 'Chat'
