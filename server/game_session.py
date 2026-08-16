@@ -5,7 +5,7 @@ This module provides a class that handles a single game session.
 """
 
 import copy
-import random
+import secrets
 import string
 import threading
 import time
@@ -243,7 +243,7 @@ class GameSession:
         self._new_game()
         self.wake_up_threads()
 
-    def _key(self, length=5):
+    def _key(self, length=32):
         """
         Generate a unique key.
 
@@ -254,7 +254,7 @@ class GameSession:
         str: the key
         """
         chars = string.ascii_letters + string.digits
-        return ''.join(random.choice(chars) for _ in range(length))
+        return ''.join(secrets.choice(chars) for _ in range(length))
 
     def key_valid(self, player_id, key):
         """
