@@ -1,5 +1,5 @@
 [Unit]
-Description=Python game server
+Description=Python Game Server
 
 After=network.target
 
