@@ -167,7 +167,12 @@ def secure_socket(socket):
         except ssl.SSLError as e:
             exit(f'TLS error while loading certificate and key: {e}')
 
-    return socket
+    elif not config.tls_cert and not config.tls_key:
+        log.info('TLS not enabled')
+
+        return socket
+
+    exit('Error: incomplete TLS configuration')
 
 print("""This is free software with ABSOLUTELY NO WARRANTY.
 Licensed under the GPL version 3 (see LICENSE).

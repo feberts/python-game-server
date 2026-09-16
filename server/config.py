@@ -41,6 +41,5 @@ request_size_max = int(1e6) # bytes, prevents clients from sending too much data
 
 # TLS:
 # To enable TLS, specify certificate and key. Clients must enable TLS as well.
-# Enabled TLS is indicated by a log message on server startup.
 tls_cert = '' # certificate in PEM format
 tls_key = ''
