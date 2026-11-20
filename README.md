@@ -14,13 +14,11 @@ A lightweight server and framework for turn-based multiplayer games.
 </picture></p>
 
 ### Features
-<!-- TODO -->
-- Automatic matchmaking or explicit session joining
-- A Flexible, game-agnostic API
+
+- Automatic matchmaking and explicit session joining
+- A flexible, game-agnostic API
 - A framework that hides the complexity of multiplayer games from the programmer
 - Adding new games by deriving from a base class and overriding a few methods
-- Intelligent state updates to avoid polling
-- Optional TLS support
 - Only basic Python skills required
 
 ### Use cases
@@ -48,7 +46,7 @@ game = GameServerAPI(
     server='127.0.0.1',
     port=4711,
     game='TicTacToe',
-    session='mygame', # use 'auto' for automatic matchmaking (default)
+    session='mygame', # pass 'auto' for automatic matchmaking (default)
     players=2
 )
 
@@ -101,11 +99,13 @@ The framework hides the technical complexity of multiplayer games from the progr
 
 ## Operating the server
 
-To run the server in a network, edit IP and port in the configuration file (`server/config.py`). Other settings can also be adjusted there, including TLS. If you intend to run the server as a systemd service, you can use the provided unit file. Learn more in the [Wiki](https://github.com/feberts/python-game-server/wiki/Operating-the-server).
+To run the server in a network, edit IP and port in the configuration file (`server/config.py`). Other settings, including TLS, can be configured there as well. If you intend to run the server as a systemd service, you can use the provided unit file. Learn more in the [Wiki](https://github.com/feberts/python-game-server/wiki/Operating-the-server).
 
 ## About this project
 
-This server was developed for a programming course, where students learn Python as their first programming language and work on projects in small groups. Both the framework and the API are designed so that basic programming skills are sufficient to implement games and clients. However, the use of the server is not limited to educational scenarios.
+This server was developed for a course, where students learn Python as their first programming language and work on projects in small groups. Both the framework and the API are designed so that basic programming skills are sufficient to implement games and clients. However, the use of the server is not limited to educational scenarios.
+
+**Limitations:** The server is not suitable for real-time games due to the framework's architecture.
 
 ## Contributing
 

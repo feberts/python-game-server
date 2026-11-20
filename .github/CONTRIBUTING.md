@@ -19,6 +19,8 @@ Possible code contributions could include:
 - Fixing bugs
 - Improving documentation
 
+When contributing server-side code, please stick to the standard library so that the server remains easy to use, even for beginners.
+
 ## Legal notice
 
 By contributing to this project, you declare that you are the sole author of the content, that you hold the necessary rights to the content, and that the content you contribute may be made available under the project's licence.
