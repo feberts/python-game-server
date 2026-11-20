@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 """
+Python Game Server
+
 A lightweight server and framework for turn-based multiplayer games.
 Copyright (C) 2025, 2026 Fabian Eberts
 
@@ -22,7 +24,7 @@ Game server.
 
 This server program opens a port and handles client connections in separate
 threads. It passes the data received from a client to the game framework and
-sends the framework's reply back to the client. Parameters like IP and port
+sends the framework's reply back to the client. Parameters such as IP and port
 number are defined in the config file.
 """
 
@@ -41,8 +43,8 @@ framework = game_framework.GameFramework()
 class ClientDisconnect(Exception): pass
 class RequestSizeExceeded(Exception): pass
 
-connection_timeout = 60 # seconds, timeout for tcp transactions
-buffer_size = 4096 # bytes, corresponds to client-side buffer size value
+connection_timeout = 60 # timeout for tcp transactions (seconds)
+buffer_size = 4096 # corresponds to client-side buffer size value (bytes)
 
 def handle_connection(conn, client):
     """
@@ -89,8 +91,7 @@ def handle_connection(conn, client):
             try:
                 response = framework.handle_request(request)
             except:
-                log.error('unexpected exception caught in the framework:\n' +
-                          traceback.format_exc())
+                log.error('unexpected exception in the framework:\n' + traceback.format_exc())
                 response = utility.framework_error('internal error')
 
         except RequestSizeExceeded:
@@ -112,7 +113,7 @@ def handle_connection(conn, client):
             log.error('corrupt json received from client')
             response = utility.server_error('corrupt json received from client')
         except:
-            log.error('unexpected exception caught on the server:\n' + traceback.format_exc())
+            log.error('unexpected exception in worker thread:\n' + traceback.format_exc())
             response = utility.server_error('internal error')
 
         # send response to client:
@@ -132,7 +133,7 @@ def handle_connection(conn, client):
     except ConnectionResetError:
         log.error('connection reset by client after sending request')
     except:
-        log.error('unexpected exception caught on the server:\n' + traceback.format_exc())
+        log.error('unexpected exception in worker thread:\n' + traceback.format_exc())
     finally:
         conn.close()
         log.tcp('connection closed by server')
@@ -141,7 +142,6 @@ def secure_socket(socket):
     """
     This function wraps the socket and returns a TLS socket. TLS must be enabled
     in the config module. Otherwise, the passed socket is returned unmodified.
-    This function terminates the server program if an error occurs.
 
     Parameters:
     socket (socket): a regular listening socket
@@ -187,17 +187,18 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sd:
     sd.listen()
 
     with secure_socket(sd) as sd:
-        log.info(f'Listening on {config.ip if config.ip else 'any'}:{config.port}')
+        log.info(f'Listening on {config.ip if config.ip else 'ANY'}:{config.port}')
 
         # accept connections and handle them in separate threads:
         while True:
             try:
                 conn, client = sd.accept()
-                threading.Thread(target=handle_connection, args=(conn, client),
+                threading.Thread(target=handle_connection,
+                                 args=(conn, client),
                                  daemon=True).start()
             except KeyboardInterrupt:
                 exit('\nServer shutting down')
             except ssl.SSLError as e:
                 log.error(f'TLS error: {e}')
             except:
-                log.error('unexpected exception caught on the server:\n' + traceback.format_exc())
+                log.error('unexpected exception in main program:\n' + traceback.format_exc())
