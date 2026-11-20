@@ -108,7 +108,7 @@ class FrameworkLogger:
         Parameters:
         message (str): message
         """
-        if config.log_framework_actions:
+        if config.log_framework_info:
             self._log(message)
 
     def request(self, request):
