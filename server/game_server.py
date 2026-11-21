@@ -198,6 +198,8 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sd:
                                  daemon=True).start()
             except KeyboardInterrupt:
                 exit('\nServer shutting down')
+            except ConnectionResetError:
+                log.error('connection reset by client upon accept')
             except ssl.SSLError as e:
                 log.error(f'TLS error: {e}')
             except:
