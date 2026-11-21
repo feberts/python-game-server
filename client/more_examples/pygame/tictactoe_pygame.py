@@ -140,6 +140,7 @@ class TicTacToe():
     def _pattern_strike(self, start_point, end_point, line_type):
         # gets the middle value of the cell
         mid_val = self.cell_size // 2
+        start_x, start_y, end_x, end_y = [0] * 4
 
         # for the vertical winning pattern
         if line_type == "ver":
